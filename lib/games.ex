@@ -5,12 +5,13 @@ defmodule Games do
 end
 
 defmodule Games.GuessingGame do
+  @moduledoc """
+  Documentation for `Guessing Game`.
+  """
   @doc """
   A guessing game, where the user guesses a number between 1 and 10.
 
   ## Examples
-
-      iex> Games.GuessingGame.play()
 
   """
   def play() do
@@ -21,7 +22,8 @@ defmodule Games.GuessingGame do
     guess = IO.gets("Enter your guess: ")
     |> String.trim()
     |> String.to_integer()
-    |> _check(number)
+
+    _check(guess, number)
   end
 
   defp _check(number, number), do: "Correct!"
@@ -31,5 +33,24 @@ defmodule Games.GuessingGame do
       guess < number -> IO.puts "Too Low!"
     end
     play(number)
+  end
+end
+
+defmodule Games.RockPaperScissors do
+  @moduledoc """
+  Documentation for `Scissors Paper Rock`
+  """
+  @winner %{rock: :scissors, scissors: :paper, paper: :rock}
+  def play() do
+    computer = Enum.random([:rock, :paper, :scissors])
+    player = IO.gets("scissors/paper/rock: ")
+    |> String.trim()
+    |> String.to_atom()
+
+    cond do
+      player == computer -> "It's a tie!"
+      @winner[player] == computer -> "You win! #{player} beats #{computer}."
+      @winner[computer] == player -> "You lose! #{computer} beats #{player}."
+    end
   end
 end
