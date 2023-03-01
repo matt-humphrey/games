@@ -41,6 +41,11 @@ defmodule Games.RockPaperScissors do
   Documentation for `Scissors Paper Rock`
   """
   @winner %{rock: :scissors, scissors: :paper, paper: :rock}
+  @doc """
+  The computer will randomly pick one of rock, paper or scissors.
+  The user will input their own choice, and the program will tell them if they won, lost or tied.
+  """
+  @spec play() :: String.t()
   def play() do
     computer = Enum.random([:rock, :paper, :scissors])
     player = IO.gets("scissors/paper/rock: ")
@@ -57,12 +62,21 @@ end
 
 defmodule Games.Wordle do
   @moduledoc """
-  Create a replica of Wordle
+  A simple eplica of Wordle.
   """
 
   @doc """
-  Initiate the game.
+  The computer will randomly choose a five-letter word, and will prompt the user to input a guess.
+  The user will receive an output that either tells them they were correct, or will specify which letters in the word were correct.
+
+  Letters in green indicate the letter is both in the word, and in the correct position.
+  Letters in yellow indicate the letter is in the word, but in the wrong position.
+  Letters in grey indicate the letter is not in the word.
+
+  If the user was incorrect, they'll be prompted to have another guess.
+  They have up until six guesses, after which they lose if they've not yet guessed correctly.
   """
+  @spec play() :: String.t() | [atom()]
   def play() do
     word = Enum.random(["hello", "water", "grass", "apple", "grape"])
     do_play(word, 0)
@@ -103,6 +117,7 @@ defmodule Games.Wordle do
   [:light_black, :green, :green, :yellow, :light_black]
 
   """
+  @spec feedback(String.t(), String.t()) :: [atom()]
   def feedback(word, guess) do
     actual = word |> String.split("", trim: true)
     guess = guess |> String.split("", trim: true)
