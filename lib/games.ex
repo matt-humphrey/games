@@ -21,16 +21,21 @@ defmodule Games.GuessingGame do
   def play(number) do
     guess = IO.gets("Enter your guess: ")
     |> String.trim()
-    |> String.to_integer()
 
-    _check(guess, number)
+    cond do
+      guess == "stop" -> nil
+      true ->
+        guess = String.to_integer(guess)
+        do_check(guess, number)
+      # true -> IO.puts("Invalid entry.")
+    end
   end
 
-  defp _check(number, number), do: "Correct!"
-  defp _check(guess, number) do
+  defp do_check(number, number), do: IO.puts("Correct!")
+  defp do_check(guess, number) do
     cond do
-      guess > number -> IO.puts "Too High!"
-      guess < number -> IO.puts "Too Low!"
+      guess > number -> IO.puts("Too High!")
+      guess < number -> IO.puts("Too Low!")
     end
     play(number)
   end
@@ -53,17 +58,18 @@ defmodule Games.RockPaperScissors do
     |> String.to_atom()
 
     cond do
-      player == computer -> "It's a tie!"
-      @winner[player] == computer -> "You win! #{player} beats #{computer}."
-      @winner[computer] == player -> "You lose! #{computer} beats #{player}."
-      true -> "Invalid entry."
+      player == computer -> IO.puts("It's a tie!")
+      @winner[player] == computer -> IO.puts("You win! #{player} beats #{computer}.")
+      @winner[computer] == player -> IO.puts("You lose! #{computer} beats #{player}.")
+      player == :stop -> nil
+      true -> IO.puts("Invalid entry.")
     end
   end
 end
 
 defmodule Games.Wordle do
   @moduledoc """
-  A simple eplica of Wordle.
+  A simple replica of Wordle.
   """
 
   @doc """
@@ -83,15 +89,16 @@ defmodule Games.Wordle do
     do_play(word, 0)
   end
 
-  defp do_play(_, 6), do: "Too many guesses! You lose."
+  defp do_play(_, 6), do: IO.puts("Too many guesses! You lose.")
 
   defp do_play(word, count) do
     guess = IO.gets("Enter a five letter word: ")
     output = feedback(word, guess)
 
-    if Enum.all?(output, fn colour -> colour == :green end) do
-      IO.puts "Correct!"
-    else
+    cond do
+      Enum.all?(output, fn colour -> colour == :green end) -> IO.puts "Correct!"
+      guess == "stop\n" -> nil
+      true ->
       [l1, l2, l3, l4, l5 | _] = String.split(guess, "", trim: true) # take each letter from the guess
       [c1, c2, c3, c4, c5] = output # determine the colour corresponding to each letter
       IO.puts(IO.ANSI.format([c1, l1, c2, l2, c3, l3, c4, l4, c5, l5], true))
@@ -172,5 +179,20 @@ defmodule Games.Menu do
       3 -> Games.Wordle.play()
       _ -> "Invalid choice. Please input either 1, 2, or 3."
     end
+  end
+end
+
+defmodule Games.CLI do
+  def main(_args) do
+    Games.Menu.display()
+    continue = IO.gets("Continue? (y/n): ") |> String.trim() |> String.downcase()
+    do_main(continue)
+  end
+
+  defp do_main("n"), do: nil
+  defp do_main("y"), do: main(nil)
+  defp do_main(_) do
+    choice = IO.gets("Please enter either y or n: ") |> String.trim() |> String.downcase()
+    do_main(choice)
   end
 end
