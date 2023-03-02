@@ -56,6 +56,7 @@ defmodule Games.RockPaperScissors do
       player == computer -> "It's a tie!"
       @winner[player] == computer -> "You win! #{player} beats #{computer}."
       @winner[computer] == player -> "You lose! #{computer} beats #{player}."
+      true -> "Invalid entry."
     end
   end
 end
@@ -148,5 +149,28 @@ defmodule Games.Wordle do
 
     Map.merge(exact, non_exact)
     |> Map.values()
+  end
+end
+
+defmodule Games.Menu do
+  @moduledoc """
+  Allow the user to select which game they would like to play.
+  """
+
+  @doc """
+  Display the options for the user to choose from.
+  """
+  def display() do
+    IO.puts("Select a game:
+1. Guessing Game
+2. Rock Paper Scissors
+3. Wordle")
+    {choice, _} = IO.gets("Select (1/2/3): ") |> Integer.parse()
+    case choice do
+      1 -> Games.GuessingGame.play()
+      2 -> Games.RockPaperScissors.play()
+      3 -> Games.Wordle.play()
+      _ -> "Invalid choice. Please input either 1, 2, or 3."
+    end
   end
 end
