@@ -2,7 +2,11 @@ defmodule GamesTest do
   use ExUnit.Case
   doctest Games
 
-  test "greets the world" do
-    assert Games.hello() == :world
+  @tag :benchmark
+  test "benchmark wordle feedback" do
+    Benchee.run(%{
+      "Incorrect" => fn -> Games.Wordle.feedback("apple", "grape") end,
+      "Correct" => fn -> Games.Wordle.feedback("apple", "apple") end
+    })
   end
 end
