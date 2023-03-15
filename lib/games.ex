@@ -159,6 +159,44 @@ defmodule Games.Wordle do
   end
 end
 
+defmodule Games.ScoreTracker do
+  @moduledoc """
+  Documentation for `Games.ScoreTracker`.
+  """
+  use GenServer
+
+  # Client functions
+
+  def start_link(_opts) do
+    GenServer.start_link(__MODULE__, [])
+  end
+
+  def add(pid, score) do
+    GenServer.cast(pid, {:add, score})
+  end
+
+  def get(pid) do
+    GenServer.call(pid, :get)
+  end
+
+  # Server callback functions
+
+  @impl true
+  def init(_init_arg) do
+    {:ok, 0}
+  end
+
+  @impl true
+  def handle_cast({:add, score}, state) do
+    {:noreply, state + score, state + score}
+  end
+
+  @impl true
+  def handle_call(:get, _from, state) do
+    {:reply, state, state}
+  end
+end
+
 defmodule Games.Menu do
   @moduledoc """
   Allow the user to select which game they would like to play.
