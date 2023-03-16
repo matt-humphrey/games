@@ -31,7 +31,10 @@ defmodule Games.GuessingGame do
     end
   end
 
-  defp do_check(number, number), do: IO.puts("Correct!")
+  defp do_check(number, number) do
+    Games.ScoreTracker.add(:score_tracker, 3)
+    IO.puts("Correct!")
+  end
   defp do_check(guess, number) do
     cond do
       guess > number -> IO.puts("Too High!")
@@ -59,7 +62,9 @@ defmodule Games.RockPaperScissors do
 
     cond do
       player == computer -> IO.puts("It's a tie!")
-      @winner[player] == computer -> IO.puts("You win! #{player} beats #{computer}.")
+      @winner[player] == computer ->
+        Games.ScoreTracker.add(:score_tracker, 1)
+        IO.puts("You win! #{player} beats #{computer}.")
       @winner[computer] == player -> IO.puts("You lose! #{computer} beats #{player}.")
       player == :stop -> nil
       true -> IO.puts("Invalid entry.")
@@ -96,13 +101,15 @@ defmodule Games.Wordle do
     output = feedback(word, guess)
 
     cond do
-      Enum.all?(output, fn colour -> colour == :green end) -> IO.puts "Correct!"
+      Enum.all?(output, fn colour -> colour == :green end) ->
+        Games.ScoreTracker.add(:score_tracker, 10)
+        IO.puts "Correct!"
       guess == "stop\n" -> nil
       true ->
-      [l1, l2, l3, l4, l5 | _] = String.split(guess, "", trim: true) # take each letter from the guess
-      [c1, c2, c3, c4, c5] = output # determine the colour corresponding to each letter
-      IO.puts(IO.ANSI.format([c1, l1, c2, l2, c3, l3, c4, l4, c5, l5], true))
-      do_play(word, count + 1)
+        [l1, l2, l3, l4, l5 | _] = String.split(guess, "", trim: true) # take each letter from the guess
+        [c1, c2, c3, c4, c5] = output # determine the colour corresponding to each letter
+        IO.puts(IO.ANSI.format([c1, l1, c2, l2, c3, l3, c4, l4, c5, l5], true))
+        do_play(word, count + 1)
     end
   end
 
@@ -167,15 +174,16 @@ defmodule Games.ScoreTracker do
 
   # Client functions
 
-  def start_link(_opts) do
-    GenServer.start_link(__MODULE__, [])
+  def start_link(opts \\ []) do
+    name = Keyword.get(opts, :name, __MODULE__)
+    GenServer.start_link(__MODULE__, [], name: name)
   end
 
-  def add(pid, score) do
+  def add(pid \\ __MODULE__, score) do
     GenServer.cast(pid, {:add, score})
   end
 
-  def get(pid) do
+  def get(pid \\ __MODULE__) do
     GenServer.call(pid, :get)
   end
 
@@ -209,13 +217,15 @@ defmodule Games.Menu do
     IO.puts("Select a game:
 1. Guessing Game
 2. Rock Paper Scissors
-3. Wordle")
-    {choice, _} = IO.gets("Select (1/2/3): ") |> Integer.parse()
+3. Wordle
+4. Total Score")
+    {choice, _} = IO.gets("Select (1/2/3/4): ") |> Integer.parse()
     case choice do
       1 -> Games.GuessingGame.play()
       2 -> Games.RockPaperScissors.play()
       3 -> Games.Wordle.play()
-      _ -> "Invalid choice. Please input either 1, 2, or 3."
+      4 -> Games.ScoreTracker.get(:score_tracker) |> IO.puts()
+      _ -> "Invalid choice. Please input either 1, 2, 3, or 4."
     end
   end
 end
